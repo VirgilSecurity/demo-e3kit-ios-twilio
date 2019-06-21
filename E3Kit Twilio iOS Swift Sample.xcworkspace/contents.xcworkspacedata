@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:E3Kit iOS Swift Sample.xcodeproj">
+      location = "group:E3Kit Twilio iOS Swift Sample.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">

@@ -1,11 +1,12 @@
 # Uncomment the next line to define a global platform for your project
 # platform :ios, '9.0'
 
-target 'E3Kit iOS Swift Sample' do
+target 'E3Kit Twilio iOS Swift Sample' do
   # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
   use_frameworks!
 
   # Pods for E3Kit iOS Swift Sample
-  pod 'VirgilE3Kit'
+  pod 'VirgilE3Kit', :path => '../../'
+  pod 'TwilioChatClient', '2.2.0'
 
 end

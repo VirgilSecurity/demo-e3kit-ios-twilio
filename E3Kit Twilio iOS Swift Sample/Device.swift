@@ -3,27 +3,30 @@
 //  E3Kit iOS Swift Sample
 //
 //  Created by Matheus Cardoso on 4/18/19.
-//  Copyright © 2019 cardoso. All rights reserved.
+//  Developer Relations Engineer @ Virgil Security
 //
 
 //# start of snippet: e3kit_imports
 import VirgilE3Kit
 import VirgilCrypto
-import VirgilSDK
 //# end of snippet: e3kit_imports
 
 typealias Completion = () -> Void
 typealias FailableCompletion = (Error?) -> Void
-typealias ResultCompletion<T> = (Result<T>) -> Void
+typealias ResultCompletion<T> = (Result<T, Error>) -> Void
 
-class Device {
+class Device<MessagingClient>: NSObject where MessagingClient: Messaging {
     let identity: String
     var eThree: EThree!
+    var authToken: String!
+
+    var messagingClient: MessagingClient!
 
     init(withIdentity identity: String) {
         self.identity = identity
     }
 
+    // First step in e3kit flow is to initialize the SDK (eThree instance)
     func initialize(_ completion: FailableCompletion? = nil) {
         let identity = self.identity
 
@@ -56,6 +59,9 @@ class Device {
                     return
                 }
 
+                self.authToken = authToken
+
+
                 let url = URL(string: "http://localhost:3000/virgil-jwt")!
                 var request = URLRequest(url: url)
                 request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
@@ -73,23 +79,37 @@ class Device {
         //# end of snippet: e3kit_jwt_callback
 
         //# start of snippet: e3kit_initialize
-        EThree.initialize(tokenCallback: tokenCallback) { [weak self] eThree, error in
-            self?.eThree = eThree
+        EThree.initialize(tokenCallback: tokenCallback) { eThree, error in
+            self.eThree = eThree
             completion?(error)
         }
         //# end of snippet: e3kit_initialize
     }
 
+    func initializeClient(withUserData userData: MessagingClient.UserData, completion: FailableCompletion? = nil) {
+        messagingClient = MessagingClient()
+        messagingClient.initialize(withUserData: userData) { error in
+            completion?(error)
+        }
+    }
+
     func register(_ completion: FailableCompletion? = nil) {
         //# start of snippet: e3kit_has_local_private_key
         if try! eThree.hasLocalPrivateKey() {
-            completion?(nil)
-            return
+            try! eThree.cleanUp()
         }
         //# end of snippet: e3kit_has_local_private_key
 
         //# start of snippet: e3kit_register
         eThree.register { error in
+            if error as? EThreeError == .userIsAlreadyRegistered {
+                self.eThree.rotatePrivateKey { error in
+                    completion?(error)
+                }
+
+                return
+            }
+
             completion?(error)
         }
         //# end of snippet: e3kit_register
@@ -99,9 +119,9 @@ class Device {
         //# start of snippet: e3kit_lookup_public_keys
         eThree.lookupPublicKeys(of: identities) { result, error in
             if let result = result {
-                completion?(.success(result)) //# remove_from_snippet
+                completion?(.success(result))
             } else if let error = error {
-                completion?(.failure(error)) //# remove_from_snippet
+                completion?(.failure(error))
             }
         }
         //# end of snippet: e3kit_lookup_public_keys

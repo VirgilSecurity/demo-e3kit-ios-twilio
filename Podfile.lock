@@ -1,4 +1,5 @@
 PODS:
+  - TwilioChatClient (2.2.0)
   - VirgilCrypto (5.0.0-alpha2):
     - VirgilCryptoAPI (~> 1.0)
     - VirgilCryptoFoundation (~> 0.6.0)
@@ -28,21 +29,27 @@ PODS:
   - VSCCrypto/Pythia (0.6.0)
 
 DEPENDENCIES:
-  - VirgilE3Kit
+  - TwilioChatClient (= 2.2.0)
+  - VirgilE3Kit (from `../../`)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
+    - TwilioChatClient
     - VirgilCrypto
     - VirgilCryptoAPI
     - VirgilCryptoFoundation
     - VirgilCryptoPythia
-    - VirgilE3Kit
     - VirgilSDK
     - VirgilSDKKeyknox
     - VirgilSDKPythia
     - VSCCrypto
 
+EXTERNAL SOURCES:
+  VirgilE3Kit:
+    :path: "../../"
+
 SPEC CHECKSUMS:
+  TwilioChatClient: eca6db5972be042593890b55641699545d73d3af
   VirgilCrypto: a83147fcf773a8ca83eff8f15c0ed09fa772dd8c
   VirgilCryptoAPI: 1c8dd0ccd88d8884c34e5afac7fed787feb0fcee
   VirgilCryptoFoundation: cd247acb1c15d66bb31ebbbace194dee15aaf0f3
@@ -53,6 +60,6 @@ SPEC CHECKSUMS:
   VirgilSDKPythia: 38f763046d3c9c248eedf1dace2b7eb54bffb05d
   VSCCrypto: 112af40992f3aac65816556e960873855b4cf049
 
-PODFILE CHECKSUM: 6f61046b71434fac41435143441a03c4bcad407b
+PODFILE CHECKSUM: 6f610586d132940b0c3fccc6db2cc12300542229
 
 COCOAPODS: 1.6.1
