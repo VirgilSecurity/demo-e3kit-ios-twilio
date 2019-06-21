@@ -6,7 +6,7 @@ target 'E3Kit Twilio iOS Swift Sample' do
   use_frameworks!
 
   # Pods for E3Kit iOS Swift Sample
-  pod 'VirgilE3Kit', :path => '../../'
-  pod 'TwilioChatClient', '2.2.0'
+  pod 'VirgilE3Kit'
+  pod 'TwilioChatClient'
 
 end
