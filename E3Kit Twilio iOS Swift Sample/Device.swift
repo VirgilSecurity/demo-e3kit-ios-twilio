@@ -15,12 +15,12 @@ typealias Completion = () -> Void
 typealias FailableCompletion = (Error?) -> Void
 typealias ResultCompletion<T> = (Result<T, Error>) -> Void
 
-class Device<MessagingClient>: NSObject where MessagingClient: Messaging {
+class Device: NSObject {
     let identity: String
     var eThree: EThree!
     var authToken: String!
 
-    var messagingClient: MessagingClient!
+    var messagingClient: TwilioClient!
 
     init(withIdentity identity: String) {
         self.identity = identity
@@ -86,9 +86,9 @@ class Device<MessagingClient>: NSObject where MessagingClient: Messaging {
         //# end of snippet: e3kit_initialize
     }
 
-    func initializeClient(withUserData userData: MessagingClient.UserData, completion: FailableCompletion? = nil) {
-        messagingClient = MessagingClient()
-        messagingClient.initialize(withUserData: userData) { error in
+    func initializeClient(withAuthToken authToken: String, completion: FailableCompletion? = nil) {
+        messagingClient = TwilioClient()
+        messagingClient.initialize(withAuthToken: authToken) { error in
             completion?(error)
         }
     }

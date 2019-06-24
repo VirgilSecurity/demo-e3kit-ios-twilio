@@ -8,15 +8,11 @@
 
 import TwilioChatClient
 
-struct TwilioUserData {
-    let authToken: String
-}
+typealias OnMessagedCallback = (String, String) -> Void
 
-extension TwilioClient: Messaging {
-    typealias UserData = TwilioUserData
-
-    func initialize(withUserData userData: TwilioUserData, completion: FailableCompletion?) {
-        initializeTwilioClient(withAuthToken: userData.authToken) { error in
+extension TwilioClient {
+    func initialize(withAuthToken authToken: String, completion: FailableCompletion?) {
+        initializeTwilioClient(withAuthToken: authToken) { error in
             completion?(error)
         }
     }
@@ -29,10 +25,6 @@ extension TwilioClient: Messaging {
             completion?(result.error)
         }
     }
-
-    func doOnMessaged(callback: @escaping OnMessagedCallback) {
-        onMessaged = callback
-    }
 }
 
 @objc final class TwilioClient: NSObject {
@@ -40,7 +32,7 @@ extension TwilioClient: Messaging {
     var generalChannel: TCHChannel! = nil
     var messages: [TCHMessage] = []
     var onMessaged: OnMessagedCallback?
-    var redactsMessages: Bool = false
+    var redactsMessages: Bool = true
 
     private func initializeTwilioClient(withAuthToken authToken: String, _ completion: FailableCompletion?) {
         //# start of snippet: e3kit_initialize_twilio

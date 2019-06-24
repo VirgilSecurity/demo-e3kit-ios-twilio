@@ -39,8 +39,8 @@ class ViewController: UIViewController {
         }
     }
 
-    let alice = Device<TwilioClient>(withIdentity: "Alice")
-    let bob = Device<TwilioClient>(withIdentity: "Bob")
+    let alice = Device(withIdentity: "Alice")
+    let bob = Device(withIdentity: "Bob")
 
     var bobLookup: EThree.LookupResult?
     var aliceLookup: EThree.LookupResult?
@@ -67,14 +67,14 @@ class ViewController: UIViewController {
 
     func initializeMessaging(_ completion: @escaping Completion) {
         log("Alice is logging into Twilio")
-        alice.initializeClient(withUserData: .init(authToken: alice.authToken)) { error in
+        alice.initializeClient(withAuthToken: alice.authToken) { error in
             if let error = error {
                 log("Alice failed logging into Twilio: \(error)")
                 return
             }
 
             log("Bob is logging into Twilio")
-            self.bob.initializeClient(withUserData: .init(authToken: self.bob.authToken)) { error in
+            self.bob.initializeClient(withAuthToken: self.bob.authToken) { error in
                 if let error = error {
                     log("Bob failed logging into Twilio: \(error)")
                     return
@@ -138,7 +138,7 @@ class ViewController: UIViewController {
         let aliceEncryptedText = try alice.encrypt(text: "Hello Bob!", for: bobLookup)
         log("Alice encrypts and signs: '\(aliceEncryptedText)'")
         alice.messagingClient.sendMessage(aliceEncryptedText, completion: nil)
-        bob.messagingClient.doOnMessaged { _, _ in
+        bob.messagingClient.onMessaged = { _, _ in
             guard let aliceDecryptedText = try? self.bob.decrypt(text: aliceEncryptedText, from: self.aliceLookup!["Alice"]) else {
                 log("Bob failed decrypting or verifying Alice's signature")
                 return
@@ -151,7 +151,7 @@ class ViewController: UIViewController {
         log("Bob encrypts and signs: '\(bobEncryptedText)'")
 
         bob.messagingClient.sendMessage(bobEncryptedText, completion: nil)
-        alice.messagingClient.doOnMessaged { _, _ in
+        alice.messagingClient.onMessaged = { _, _ in
             guard let bobDecryptedText = try? self.alice.decrypt(text: bobEncryptedText, from: self.bobLookup!["Bob"]) else {
                 log("Alice failed decrypting or verifying Bob's signature")
                 return
