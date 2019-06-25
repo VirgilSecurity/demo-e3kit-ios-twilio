@@ -10,9 +10,9 @@ Virgil e3kit allows you to setup user encryption with multidevice support in jus
 In order to run this demo, you have:
 - Installed Xcode 10.2.1 or greater
 - Installed [CocoaPods](https://cocoapods.org/) 1.6.1 or greated 
-- Created a Twilio application
-- Created a Virgil E2EE v5 Application in your dashboard
-- Set up a local backend to generate Twilio JWT and Virgil JWT (you can find our Node.js sample [here](https://github.com/VirgilSecurity/twilio-sample-backend-nodejs)
+- Created a Twilio application in [Twilio console](https://www.twilio.com/console)
+- Created a Virgil E2EE v5 Application in your [Virgil dashboard](https://dashboard.virgilsecurity.com/)
+- Set up a local backend to generate Twilio JWT and Virgil JWT (you can find our Node.js sample [here])(https://github.com/VirgilSecurity/twilio-sample-backend-nodejs)
 
 ## Install dependencies
 
