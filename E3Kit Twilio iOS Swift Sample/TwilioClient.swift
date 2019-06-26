@@ -7,6 +7,7 @@
 //
 
 import TwilioChatClient
+import VirgilSDK
 
 typealias OnMessagedCallback = (String, String) -> Void
 
@@ -30,30 +31,27 @@ extension TwilioClient {
 
     func initializeTwilioClient(withAuthToken authToken: String, _ completion: FailableCompletion?) {
         //# start of snippet: e3kit_initialize_twilio
+        let connection = HttpConnection()
         let url = URL(string: "http://localhost:3000/twilio-jwt")!
-        var request = URLRequest(url: url)
-        request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let data = data else {
-                completion?(error)
+        let headers = ["Content-Type": "application/json", "Authorization": "Bearer " + authToken]
+        let request = Request(url: url, method: .get, headers: headers)
+        let body = try! connection.send(request).body!
+
+        let json = try! JSONSerialization.jsonObject(with: body, options: []) as! [String: Any]
+        let token = json["twilioToken"] as! String
+
+        TwilioChatClient.chatClient(withToken: token, properties: nil, delegate: self) { result, client in
+            guard let client = client, result.isSuccessful() else {
+                completion?(result.error)
                 return
             }
 
-            let json = try? JSONDecoder().decode([String: String].self, from: data)
-            let token = json?["twilioToken"]
-            TwilioChatClient.chatClient(withToken: token!, properties: nil, delegate: self) { result, client in
-                guard let client = client, result.isSuccessful() else {
-                    completion?(result.error)
-                    return
-                }
+            self.client = client
 
-                self.client = client
-
-                self.joinOrCreateTwilioChannel { error in
-                    completion?(error)
-                }
+            self.joinOrCreateTwilioChannel { error in
+                completion?(error)
             }
-            }.resume()
+        }
         //# end of snippet: e3kit_initialize_twilio
     }
 
