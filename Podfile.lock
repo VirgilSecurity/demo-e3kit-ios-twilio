@@ -1,9 +1,9 @@
 PODS:
-  - TwilioChatClient (2.2.0)
+  - TwilioChatClient (2.4.6)
   - VirgilCrypto (5.0.0-alpha2):
     - VirgilCryptoAPI (~> 1.0)
     - VirgilCryptoFoundation (~> 0.6.0)
-  - VirgilCryptoAPI (1.0.5)
+  - VirgilCryptoAPI (1.0.6)
   - VirgilCryptoFoundation (0.6.0):
     - VSCCrypto/Common (= 0.6.0)
     - VSCCrypto/Foundation (= 0.6.0)
@@ -12,10 +12,10 @@ PODS:
     - VSCCrypto/Common (= 0.6.0)
     - VSCCrypto/Foundation (= 0.6.0)
     - VSCCrypto/Pythia (= 0.6.0)
-  - VirgilE3Kit (0.5.1):
+  - VirgilE3Kit (0.5.3):
     - VirgilSDKKeyknox (~> 0.4.1)
     - VirgilSDKPythia (~> 0.5.1)
-  - VirgilSDK (5.7.2):
+  - VirgilSDK (5.8.0):
     - VirgilCryptoAPI (~> 1.0)
   - VirgilSDKKeyknox (0.4.1):
     - VirgilCrypto (~> 5.0.0-alpha2)
@@ -46,13 +46,13 @@ SPEC REPOS:
     - VSCCrypto
 
 SPEC CHECKSUMS:
-  TwilioChatClient: eca6db5972be042593890b55641699545d73d3af
+  TwilioChatClient: a942ada72abaaac1e25cec16826771441e1afb75
   VirgilCrypto: a83147fcf773a8ca83eff8f15c0ed09fa772dd8c
-  VirgilCryptoAPI: 1c8dd0ccd88d8884c34e5afac7fed787feb0fcee
+  VirgilCryptoAPI: 7ed5cdd7225a1eb64e0fb61e0afbb0d62419af87
   VirgilCryptoFoundation: cd247acb1c15d66bb31ebbbace194dee15aaf0f3
   VirgilCryptoPythia: 4adc5e99e63233a18949c1e8487b42d0d03cfb5e
-  VirgilE3Kit: e7cf3ce650d3a04e4d6d9dc2a745ba7aa2b94a65
-  VirgilSDK: 85d13bb1269495989f1268895ffcbd306cda1232
+  VirgilE3Kit: 7d55be3a8c8ad8338a3660618b647d14f4ae2d6f
+  VirgilSDK: d45134baee8c1e557ca131b24870bff3f96f7862
   VirgilSDKKeyknox: d387ffe949a7c024317e6ea18a281a68f10d8c47
   VirgilSDKPythia: 38f763046d3c9c248eedf1dace2b7eb54bffb05d
   VSCCrypto: 112af40992f3aac65816556e960873855b4cf049
