@@ -11,12 +11,6 @@ import TwilioChatClient
 typealias OnMessagedCallback = (String, String) -> Void
 
 extension TwilioClient {
-    func initialize(withAuthToken authToken: String, completion: FailableCompletion?) {
-        initializeTwilioClient(withAuthToken: authToken) { error in
-            completion?(error)
-        }
-    }
-
     func sendMessage(_ message: String, completion: FailableCompletion?) {
         generalChannel.messages?.sendMessage(with: TCHMessageOptions().withBody(message)) { result, message in
             if self.redactsMessages {
@@ -34,7 +28,7 @@ extension TwilioClient {
     var onMessaged: OnMessagedCallback?
     var redactsMessages: Bool = true
 
-    private func initializeTwilioClient(withAuthToken authToken: String, _ completion: FailableCompletion?) {
+    func initializeTwilioClient(withAuthToken authToken: String, _ completion: FailableCompletion?) {
         //# start of snippet: e3kit_initialize_twilio
         let url = URL(string: "http://localhost:3000/twilio-jwt")!
         var request = URLRequest(url: url)

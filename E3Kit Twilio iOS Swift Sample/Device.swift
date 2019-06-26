@@ -8,12 +8,17 @@
 
 //# start of snippet: e3kit_imports
 import VirgilE3Kit
+import VirgilSDK
 import VirgilCrypto
 //# end of snippet: e3kit_imports
 
 typealias Completion = () -> Void
 typealias FailableCompletion = (Error?) -> Void
-typealias ResultCompletion<T> = (Result<T, Error>) -> Void
+typealias ResultCompletion<T> = (Swift.Result<T, Error>) -> Void
+
+enum AppError: Error {
+    case gettingJwtFailed
+}
 
 class Device: NSObject {
     let identity: String
@@ -31,50 +36,46 @@ class Device: NSObject {
         let identity = self.identity
 
         //# start of snippet: e3kit_authenticate
-        func authenticate(_ identity: String, _ completion: @escaping (String?) -> Void) {
+        let authCallback = { () -> String in
+            let connection = HttpConnection()
             let url = URL(string: "http://localhost:3000/authenticate")!
+            let headers = ["Content-Type": "application/json"]
             let params = ["identity": identity]
+            let requestBody = try! JSONSerialization.data(withJSONObject: params,
+                                                          options: [])
 
-            var request = URLRequest(url: url)
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = try! JSONSerialization.data(withJSONObject: params, options: [])
-            request.httpMethod = "POST"
-            URLSession.shared.dataTask(with: request) { data, response, error in
-                guard let data = data else {
-                    completion(nil)
-                    return
-                }
+            let request = Request(url: url, method: .post,
+                                  headers: headers, body: requestBody)
+            let response = try! connection.send(request)
 
-                let json = try? JSONDecoder().decode([String: String].self, from: data)
-                completion(json?["authToken"])
-            }.resume()
+            let json = try! JSONSerialization.jsonObject(with: response.body!,
+                                                         options: []) as! [String: Any]
+            let authToken = json["authToken"] as! String
+
+            return authToken
         }
+
+        authToken = authCallback()
         //# end of snippet: e3kit_authenticate
 
         //# start of snippet: e3kit_jwt_callback
+        let url = URL(string: "http://localhost:3000/virgil-jwt")!
+        let headers = ["Content-Type": "application/json",
+                       "Authorization": "Bearer " + authToken]
+
         let tokenCallback: EThree.RenewJwtCallback = { completion in
-            authenticate(identity) { authToken in
-                guard let authToken = authToken else {
-                    completion(nil, nil)
+            let request = Request(url: url, method: .get, headers: headers)
+
+            let connection = HttpConnection()
+            guard let response = try? connection.send(request),
+                let body = response.body,
+                let json = try? JSONSerialization.jsonObject(with: body, options: []) as? [String: Any],
+                let jwtString = json["virgilToken"] as? String else {
+                    completion(nil, AppError.gettingJwtFailed)
                     return
-                }
-
-                self.authToken = authToken
-
-
-                let url = URL(string: "http://localhost:3000/virgil-jwt")!
-                var request = URLRequest(url: url)
-                request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
-                URLSession.shared.dataTask(with: request) { data, response, error in
-                    guard let data = data else {
-                        completion(nil, error)
-                        return
-                    }
-
-                    let json = try? JSONDecoder().decode([String: String].self, from: data)
-                    completion(json?["virgilToken"], error)
-                }.resume()
             }
+
+            completion(jwtString, nil)
         }
         //# end of snippet: e3kit_jwt_callback
 
@@ -88,9 +89,7 @@ class Device: NSObject {
 
     func initializeClient(withAuthToken authToken: String, completion: FailableCompletion? = nil) {
         messagingClient = TwilioClient()
-        messagingClient.initialize(withAuthToken: authToken) { error in
-            completion?(error)
-        }
+        messagingClient.initializeTwilioClient(withAuthToken: authToken, completion)
     }
 
     func register(_ completion: FailableCompletion? = nil) {
