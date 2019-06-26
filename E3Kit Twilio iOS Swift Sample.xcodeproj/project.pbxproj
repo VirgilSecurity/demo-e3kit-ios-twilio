@@ -14,6 +14,7 @@
 		80ED28FB2268DD72009AB395 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 80ED28FA2268DD72009AB395 /* Assets.xcassets */; };
 		80ED28FE2268DD72009AB395 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 80ED28FC2268DD72009AB395 /* LaunchScreen.storyboard */; };
 		80ED29062268DE38009AB395 /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80ED29052268DE38009AB395 /* Device.swift */; };
+		80FC9FB722C3F770001E71E6 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80FC9FB622C3F770001E71E6 /* AppError.swift */; };
 		D8ED65FA95A1C5B2F6A84A88 /* Pods_E3Kit_Twilio_iOS_Swift_Sample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 548B78ADEDF3A7F3226FA97B /* Pods_E3Kit_Twilio_iOS_Swift_Sample.framework */; };
 /* End PBXBuildFile section */
 
@@ -29,6 +30,7 @@
 		80ED28FD2268DD72009AB395 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		80ED28FF2268DD72009AB395 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		80ED29052268DE38009AB395 /* Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
+		80FC9FB622C3F770001E71E6 /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 		A59FF6700F21A24620BB2911 /* Pods-E3Kit Twilio iOS Swift Sample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-E3Kit Twilio iOS Swift Sample.debug.xcconfig"; path = "Target Support Files/Pods-E3Kit Twilio iOS Swift Sample/Pods-E3Kit Twilio iOS Swift Sample.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -86,6 +88,7 @@
 				80ED28F52268DD70009AB395 /* ViewController.swift */,
 				80ED29052268DE38009AB395 /* Device.swift */,
 				80CB179B2271236900E80AE1 /* TwilioClient.swift */,
+				80FC9FB622C3F770001E71E6 /* AppError.swift */,
 				80ED28F72268DD70009AB395 /* Main.storyboard */,
 				80ED28FA2268DD72009AB395 /* Assets.xcassets */,
 				80ED28FC2268DD72009AB395 /* LaunchScreen.storyboard */,
@@ -241,6 +244,7 @@
 			files = (
 				80CB179C2271236900E80AE1 /* TwilioClient.swift in Sources */,
 				80ED29062268DE38009AB395 /* Device.swift in Sources */,
+				80FC9FB722C3F770001E71E6 /* AppError.swift in Sources */,
 				80ED28F62268DD70009AB395 /* ViewController.swift in Sources */,
 				80ED28F42268DD70009AB395 /* AppDelegate.swift in Sources */,
 			);

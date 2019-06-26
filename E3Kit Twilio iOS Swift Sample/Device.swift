@@ -16,10 +16,6 @@ typealias Completion = () -> Void
 typealias FailableCompletion = (Error?) -> Void
 typealias ResultCompletion<T> = (Swift.Result<T, Error>) -> Void
 
-enum AppError: Error {
-    case gettingJwtFailed
-}
-
 class Device: NSObject {
     let identity: String
     var eThree: EThree!
@@ -59,11 +55,14 @@ class Device: NSObject {
         //# end of snippet: e3kit_authenticate
 
         //# start of snippet: e3kit_jwt_callback
-        let url = URL(string: "http://localhost:3000/virgil-jwt")!
-        let headers = ["Content-Type": "application/json",
-                       "Authorization": "Bearer " + authToken]
-
         let tokenCallback: EThree.RenewJwtCallback = { completion in
+            let url = URL(string: "http://localhost:3000/virgil-jwt")!
+
+            let headers = [
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + self.authToken
+            ]
+
             let request = Request(url: url, method: .get, headers: headers)
 
             let connection = HttpConnection()
