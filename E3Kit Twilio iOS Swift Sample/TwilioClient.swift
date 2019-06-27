@@ -9,7 +9,7 @@
 import TwilioChatClient
 import VirgilSDK
 
-@objc final class TwilioClient: NSObject {
+class TwilioClient: NSObject {
     var client: TwilioChatClient? = nil
     var generalChannel: TCHChannel? = nil
     var messages: [TCHMessage] = []
