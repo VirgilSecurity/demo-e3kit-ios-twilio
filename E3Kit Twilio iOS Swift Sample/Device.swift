@@ -69,8 +69,7 @@ class Device: NSObject {
             }
 
             guard let authToken = self.authToken else {
-                completion(nil, AppError.notAuthenticated)
-                return
+                return completion(nil, AppError.notAuthenticated)
             }
 
             let headers = [
@@ -81,12 +80,14 @@ class Device: NSObject {
             let request = Request(url: url, method: .get, headers: headers)
 
             let connection = HttpConnection()
-            guard let response = try? connection.send(request),
+
+            guard
+                let response = try? connection.send(request),
                 let body = response.body,
                 let json = try? JSONSerialization.jsonObject(with: body, options: []) as? [String: Any],
-                let jwtString = json["virgilToken"] as? String else {
-                    completion(nil, AppError.gettingJwtFailed)
-                    return
+                let jwtString = json["virgilToken"] as? String
+            else {
+                return completion(nil, AppError.gettingJwtFailed)
             }
 
             completion(jwtString, nil)
