@@ -18,10 +18,10 @@ typealias ResultCompletion<T> = (Swift.Result<T, Error>) -> Void
 
 class Device: NSObject {
     let identity: String
-    var eThree: EThree!
-    var authToken: String!
+    var eThree: EThree?
+    var authToken: String?
 
-    var messagingClient: TwilioClient!
+    var messagingClient: TwilioClient?
 
     init(withIdentity identity: String) {
         self.identity = identity
@@ -32,23 +32,31 @@ class Device: NSObject {
         let identity = self.identity
 
         //# start of snippet: e3kit_authenticate
-        let authCallback = { () -> String in
+        let authCallback = { () -> String? in
             let connection = HttpConnection()
-            let url = URL(string: "http://localhost:3000/authenticate")!
+
+            guard let url = URL(string: "http://localhost:3000/authenticate") else {
+                return nil
+            }
+
             let headers = ["Content-Type": "application/json"]
             let params = ["identity": identity]
-            let requestBody = try! JSONSerialization.data(withJSONObject: params,
-                                                          options: [])
 
-            let request = Request(url: url, method: .post,
-                                  headers: headers, body: requestBody)
-            let response = try! connection.send(request)
+            guard let requestBody = try? JSONSerialization.data(withJSONObject: params, options: []) else {
+                return nil
+            }
 
-            let json = try! JSONSerialization.jsonObject(with: response.body!,
-                                                         options: []) as! [String: Any]
-            let authToken = json["authToken"] as! String
+            let request = Request(url: url, method: .post, headers: headers, body: requestBody)
 
-            return authToken
+            guard let body = (try? connection.send(request))?.body else {
+                return nil
+            }
+
+            guard let json = try? JSONSerialization.jsonObject(with: body, options: []) as? [String: Any] else {
+                return nil
+            }
+
+            return json["authToken"] as? String
         }
 
         authToken = authCallback()
@@ -56,11 +64,18 @@ class Device: NSObject {
 
         //# start of snippet: e3kit_jwt_callback
         let tokenCallback: EThree.RenewJwtCallback = { completion in
-            let url = URL(string: "http://localhost:3000/virgil-jwt")!
+            guard let url = URL(string: "http://localhost:3000/virgil-jwt") else {
+                return completion(nil, AppError.invalidUrl)
+            }
+
+            guard let authToken = self.authToken else {
+                completion(nil, AppError.notAuthenticated)
+                return
+            }
 
             let headers = [
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + self.authToken
+                "Authorization": "Bearer " + authToken
             ]
 
             let request = Request(url: url, method: .get, headers: headers)
@@ -88,20 +103,25 @@ class Device: NSObject {
 
     func initializeClient(withAuthToken authToken: String, completion: FailableCompletion? = nil) {
         messagingClient = TwilioClient()
-        messagingClient.initializeTwilioClient(withAuthToken: authToken, completion)
+        messagingClient?.initializeTwilioClient(withAuthToken: authToken, completion)
     }
 
     func register(_ completion: FailableCompletion? = nil) {
+        guard let eThree = eThree else {
+            completion?(AppError.eThreeNotInitialized)
+            return
+        }
+
         //# start of snippet: e3kit_has_local_private_key
-        if try! eThree.hasLocalPrivateKey() {
-            try! eThree.cleanUp()
+        if (try? eThree.hasLocalPrivateKey()) == true {
+            try? eThree.cleanUp()
         }
         //# end of snippet: e3kit_has_local_private_key
 
         //# start of snippet: e3kit_register
         eThree.register { error in
             if error as? EThreeError == .userIsAlreadyRegistered {
-                self.eThree.rotatePrivateKey { error in
+                eThree.rotatePrivateKey { error in
                     completion?(error)
                 }
 
@@ -114,6 +134,11 @@ class Device: NSObject {
     }
 
     func lookupPublicKeys(of identities: [String], completion: ResultCompletion<EThree.LookupResult>?) {
+        guard let eThree = eThree else {
+            completion?(.failure(AppError.eThreeNotInitialized))
+            return
+        }
+
         //# start of snippet: e3kit_lookup_public_keys
         eThree.lookupPublicKeys(of: identities) { result, error in
             if let result = result {
@@ -126,6 +151,10 @@ class Device: NSObject {
     }
 
     func encrypt(text: String, for lookupResult: EThree.LookupResult? = nil) throws -> String {
+        guard let eThree = eThree else {
+            throw AppError.eThreeNotInitialized
+        }
+
         //# start of snippet: e3kit_encrypt
         let encryptedText = try eThree.encrypt(text: text, for: lookupResult)
         //# end of snippet: e3kit_encrypt
@@ -134,6 +163,10 @@ class Device: NSObject {
     }
 
     func decrypt(text: String, from senderPublicKey: VirgilPublicKey? = nil) throws -> String {
+        guard let eThree = eThree else {
+            throw AppError.eThreeNotInitialized
+        }
+
         //# start of snippet: e3kit_decrypt
         let decryptedText = try eThree.decrypt(text: text, from: senderPublicKey)
         //# end of snippet: e3kit_decrypt
@@ -142,6 +175,10 @@ class Device: NSObject {
     }
 
     func hasLocalPrivateKey() throws -> Bool {
+        guard let eThree = eThree else {
+            throw AppError.eThreeNotInitialized
+        }
+
         //# start of snippet: e3kit_has_local_private_key
         let hasLocalPrivateKey = try eThree.hasLocalPrivateKey()
         //# end of snippet: e3kit_has_local_private_key
@@ -150,6 +187,11 @@ class Device: NSObject {
     }
 
     func backupPrivateKey(password: String, completion: FailableCompletion? = nil) {
+        guard let eThree = eThree else {
+            completion?(AppError.eThreeNotInitialized)
+            return
+        }
+
         //# start of snippet: e3kit_backup_private_key
         eThree.backupPrivateKey(password: password) { error in
             completion?(error)
@@ -158,6 +200,11 @@ class Device: NSObject {
     }
 
     func restorePrivateKey(password: String, completion: FailableCompletion? = nil) {
+        guard let eThree = eThree else {
+            completion?(AppError.eThreeNotInitialized)
+            return
+        }
+
         //# start of snippet: e3kit_restore_private_key
         eThree.restorePrivateKey(password: password) { error in
             completion?(error)
@@ -166,6 +213,11 @@ class Device: NSObject {
     }
 
     func rotatePrivateKey(completion: FailableCompletion? = nil) {
+        guard let eThree = eThree else {
+            completion?(AppError.eThreeNotInitialized)
+            return
+        }
+
         //# start of snippet: e3kit_rotate_private_key
         eThree.rotatePrivateKey { error in
             completion?(error)

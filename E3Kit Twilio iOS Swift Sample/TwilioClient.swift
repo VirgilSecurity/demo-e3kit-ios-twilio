@@ -10,8 +10,8 @@ import TwilioChatClient
 import VirgilSDK
 
 @objc final class TwilioClient: NSObject {
-    var client: TwilioChatClient! = nil
-    var generalChannel: TCHChannel! = nil
+    var client: TwilioChatClient? = nil
+    var generalChannel: TCHChannel? = nil
     var messages: [TCHMessage] = []
     var onMessaged: (((body: String, author: String)) -> Void)?
     var redactsMessages: Bool = true
@@ -19,7 +19,11 @@ import VirgilSDK
     func initializeTwilioClient(withAuthToken authToken: String, _ completion: FailableCompletion?) {
         //# start of snippet: e3kit_initialize_twilio
         let connection = HttpConnection()
-        let url = URL(string: "http://localhost:3000/twilio-jwt")!
+
+        guard let url = URL(string: "http://localhost:3000/twilio-jwt") else {
+            completion?(AppError.invalidUrl)
+            return
+        }
 
         let headers = [
             "Content-Type": "application/json",
@@ -27,10 +31,15 @@ import VirgilSDK
         ]
 
         let request = Request(url: url, method: .get, headers: headers)
-        let body = try! connection.send(request).body!
 
-        let json = try! JSONSerialization.jsonObject(with: body, options: []) as! [String: Any]
-        let token = json["twilioToken"] as! String
+        guard
+            let body = try? connection.send(request).body,
+            let json = try? JSONSerialization.jsonObject(with: body, options: []) as? [String: Any],
+            let token = json["twilioToken"] as? String
+        else {
+            completion?(AppError.invalidResponse)
+            return
+        }
 
         TwilioChatClient.chatClient(withToken: token, properties: nil, delegate: self) { result, client in
             guard let client = client, result.isSuccessful() else {
@@ -50,7 +59,7 @@ import VirgilSDK
     private func joinOrCreateTwilioChannel(_ completion: FailableCompletion?) {
         // not a Virgil snippet.
         // learn here: https://www.twilio.com/docs/chat/channels#create-channel
-        guard let channelsList = client.channelsList() else {
+        guard let channelsList = client?.channelsList() else {
             completion?(AppError.gettingChannelsListFailed)
             return
         }
@@ -88,7 +97,7 @@ import VirgilSDK
     }
 
     func sendMessage(_ message: String, completion: FailableCompletion?) {
-        generalChannel.messages?.sendMessage(with: TCHMessageOptions().withBody(message)) { result, message in
+        generalChannel?.messages?.sendMessage(with: TCHMessageOptions().withBody(message)) { result, message in
             if self.redactsMessages {
                 message?.updateBody("[redacted]")
             }

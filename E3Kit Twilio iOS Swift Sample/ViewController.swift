@@ -66,15 +66,20 @@ class ViewController: UIViewController {
     }
 
     func initializeMessaging(_ completion: @escaping Completion) {
+        guard let aliceToken = alice.authToken, let bobToken = bob.authToken else {
+            log("Failed to initialize messaging: Not all users are authenticated")
+            return
+        }
+
         log("Alice is logging into Twilio")
-        alice.initializeClient(withAuthToken: alice.authToken) { error in
+        alice.initializeClient(withAuthToken: aliceToken) { error in
             if let error = error {
                 log("Alice failed logging into Twilio: \(error)")
                 return
             }
 
             log("Bob is logging into Twilio")
-            self.bob.initializeClient(withAuthToken: self.bob.authToken) { error in
+            self.bob.initializeClient(withAuthToken: bobToken) { error in
                 if let error = error {
                     log("Bob failed logging into Twilio: \(error)")
                     return
@@ -135,11 +140,15 @@ class ViewController: UIViewController {
     }
 
     func encryptAndDecrypt() throws {
+        guard let aliceMessaging = alice.messagingClient, let bobMessaging = bob.messagingClient else {
+            throw AppError.messagingNotInitialized
+        }
+
         let aliceEncryptedText = try alice.encrypt(text: "Hello Bob!", for: bobLookup)
         log("Alice encrypts and signs: '\(aliceEncryptedText)'")
-        alice.messagingClient.sendMessage(aliceEncryptedText, completion: nil)
-        bob.messagingClient.onMessaged = { _ in
-            guard let aliceDecryptedText = try? self.bob.decrypt(text: aliceEncryptedText, from: self.aliceLookup!["Alice"]) else {
+        aliceMessaging.sendMessage(aliceEncryptedText, completion: nil)
+        bobMessaging.onMessaged = { _ in
+            guard let aliceDecryptedText = try? self.bob.decrypt(text: aliceEncryptedText, from: self.aliceLookup?["Alice"]) else {
                 log("Bob failed decrypting or verifying Alice's signature")
                 return
             }
@@ -150,9 +159,9 @@ class ViewController: UIViewController {
         let bobEncryptedText = try bob.encrypt(text: "Hello Alice!", for: aliceLookup)
         log("Bob encrypts and signs: '\(bobEncryptedText)'")
 
-        bob.messagingClient.sendMessage(bobEncryptedText, completion: nil)
-        alice.messagingClient.onMessaged = { a in
-            guard let bobDecryptedText = try? self.alice.decrypt(text: bobEncryptedText, from: self.bobLookup!["Bob"]) else {
+        bobMessaging.sendMessage(bobEncryptedText, completion: nil)
+        aliceMessaging.onMessaged = { a in
+            guard let bobDecryptedText = try? self.alice.decrypt(text: bobEncryptedText, from: self.bobLookup?["Bob"]) else {
                 log("Alice failed decrypting or verifying Bob's signature")
                 return
             }

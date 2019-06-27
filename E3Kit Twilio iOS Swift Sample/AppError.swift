@@ -11,4 +11,9 @@ import Foundation
 enum AppError: Error {
     case gettingJwtFailed
     case gettingChannelsListFailed
+    case notAuthenticated
+    case eThreeNotInitialized
+    case invalidUrl
+    case messagingNotInitialized
+    case invalidResponse
 }
