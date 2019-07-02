@@ -13,8 +13,11 @@ class TwilioClient: NSObject {
     var client: TwilioChatClient? = nil
     var generalChannel: TCHChannel? = nil
     var messages: [TCHMessage] = []
-    var onMessaged: (((body: String, author: String)) -> Void)?
     var redactsMessages: Bool = true
+
+    typealias OnMessagedParameters = (body: String, author: String)
+    typealias OnMessagedCallback = ((OnMessagedParameters) -> Void)
+    var onMessaged: OnMessagedCallback? = nil
 
     func initializeTwilioClient(withAuthToken authToken: String, _ completion: FailableCompletion?) {
         //# start of snippet: e3kit_initialize_twilio

@@ -147,8 +147,8 @@ class ViewController: UIViewController {
         let aliceEncryptedText = try alice.encrypt(text: "Hello Bob!", for: bobLookup)
         log("Alice encrypts and signs: '\(aliceEncryptedText)'")
         aliceMessaging.sendMessage(aliceEncryptedText, completion: nil)
-        bobMessaging.onMessaged = { _ in
-            guard let aliceDecryptedText = try? self.bob.decrypt(text: aliceEncryptedText, from: self.aliceLookup?["Alice"]) else {
+        bobMessaging.onMessaged = {
+            guard let aliceDecryptedText = try? self.bob.decrypt(text: $0.body, from: self.aliceLookup?[$0.author]) else {
                 log("Bob failed decrypting or verifying Alice's signature")
                 return
             }
@@ -160,8 +160,8 @@ class ViewController: UIViewController {
         log("Bob encrypts and signs: '\(bobEncryptedText)'")
 
         bobMessaging.sendMessage(bobEncryptedText, completion: nil)
-        aliceMessaging.onMessaged = { a in
-            guard let bobDecryptedText = try? self.alice.decrypt(text: bobEncryptedText, from: self.bobLookup?["Bob"]) else {
+        aliceMessaging.onMessaged = {
+            guard let bobDecryptedText = try? self.alice.decrypt(text: $0.body, from: self.bobLookup?[$0.author]) else {
                 log("Alice failed decrypting or verifying Bob's signature")
                 return
             }
